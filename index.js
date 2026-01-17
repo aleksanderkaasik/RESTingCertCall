@@ -8,6 +8,12 @@ const app = express();
 
 app.use(fileUpload());
 
+app.get("/get-ca", (req, res) => {
+    return res.status(200).sendFile(
+        path.join(path.resolve(), `./ca/ca.crt`)
+    );
+});
+
 app.post("/sign-ssl", (req, res) => {
     const CertificateSigningRequest = req.files?.CertificateSigningRequest;
     const DomainName = req.body?.DomainName;
@@ -17,15 +23,15 @@ app.post("/sign-ssl", (req, res) => {
     if (!DomainName) {
         errorMessages.push("The name wasn't added")
     }
-        
+
     if (!CertificateSigningRequest) {
         errorMessages.push("The file wasn't added")
-    }   
+    }
 
     if (errorMessages.length > 0 ) {
         return res.status(400).json({ "error": errorMessages });
     }
-    
+
     fs.writeFileSync(`reqs/${DomainName}.req`, CertificateSigningRequest.data);
 
     try {
